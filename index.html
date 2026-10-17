@@ -9,111 +9,147 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        /* --- ЦВЕТОВАЯ ПАЛИТРА GGSELL (бело-зеленая, мягкая) --- */
         :root {
-            --gg-bg: #0a0f0d;          /* Глубокий темный фон */
-            --gg-card: #131f19;        /* Фон карточек */
-            --gg-accent: #2e7d32;      /* Темно-зеленый (основа) */
-            --gg-accent-light: #4caf50;/* Яркий зеленый (кнопки) */
-            --gg-accent-glow: #81c784; /* Свечение */
-            --gg-text: #e8f5e9;        /* Бело-зеленый текст */
-            --gg-text-muted: #6b8f71;  /* Приглушенный текст */
-            --gg-gold: #ffca28;        /* Золотой для GRAM */
-            --gg-border: #1c2e24;      /* Границы */
+            --gg-bg: #060b09;
+            --gg-card: #111a15;
+            --gg-accent: #4caf50;
+            --gg-text: #ffffff;
+            --gg-text-muted: #8fa89a;
+            --gg-gold: #ffca28;
+            --gg-border: #1f3328;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
         body {
-            margin: 0; padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--gg-bg);
             color: var(--gg-text);
-            padding-bottom: 80px; /* Отступ под нижнее меню */
-            overflow-x: hidden;
+            padding-bottom: 80px;
+            display: flex;
+            justify-content: center; /* Центрируем на компе */
         }
 
-        /* --- Шапка --- */
+        /* Контейнер для мобилки (как в TG) */
+        #root {
+            width: 100%;
+            max-width: 480px; 
+            min-height: 100vh;
+            background: var(--gg-bg);
+            position: relative;
+            border-left: 1px solid var(--gg-border);
+            border-right: 1px solid var(--gg-border);
+        }
+
+        /* Шапка */
         .header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 15px 20px; background: var(--gg-bg);
             position: sticky; top: 0; z-index: 10;
+            border-bottom: 1px solid var(--gg-border);
         }
         .logo-area { display: flex; align-items: center; gap: 10px; }
         .logo-icon {
-            width: 36px; height: 36px; background: linear-gradient(135deg, var(--gg-accent-light), var(--gg-accent));
-            border-radius: 10px; display: flex; justify-content: center; align-items: center;
-            font-weight: 900; color: #fff; font-size: 20px; box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+            width: 32px; height: 32px; background: var(--gg-accent);
+            border-radius: 8px; display: flex; justify-content: center; align-items: center;
+            font-weight: 900; color: #000; font-size: 18px;
         }
-        .logo-text { font-size: 18px; font-weight: 900; letter-spacing: 0.5px; }
+        .logo-text { font-size: 16px; font-weight: 900; }
         .lang-btn {
             background: var(--gg-card); border: 1px solid var(--gg-border);
-            color: var(--gg-text); padding: 6px 12px; border-radius: 20px;
-            font-weight: bold; font-size: 12px; display: flex; align-items: center; gap: 5px;
-            cursor: pointer;
+            color: var(--gg-text); padding: 6px 10px; border-radius: 8px;
+            font-weight: bold; font-size: 12px; cursor: pointer;
         }
 
-        /* --- Карточки --- */
+        /* Карточки */
         .card {
             background: var(--gg-card); border: 1px solid var(--gg-border);
-            border-radius: 16px; padding: 20px; margin: 0 15px 15px 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            animation: fadeIn 0.3s ease-in-out;
+            border-radius: 14px; padding: 16px; margin: 15px;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .card-title { font-size: 11px; font-weight: bold; color: var(--gg-accent); letter-spacing: 1px; margin-bottom: 5px; }
         
-        .card-title { font-size: 12px; font-weight: bold; color: var(--gg-accent-glow); text-transform: uppercase; letter-spacing: 1px; }
-
-        /* --- Кнопки --- */
-        .btn {
-            background: var(--gg-accent-light); color: #000;
-            border: none; padding: 15px; border-radius: 12px;
-            font-size: 15px; font-weight: 800; width: 100%;
-            margin-top: 10px; cursor: pointer; transition: 0.2s;
-            display: flex; justify-content: center; align-items: center; gap: 8px;
+        /* Статистика */
+        .stats-row { display: flex; gap: 10px; margin-top: 15px; }
+        .stat-box {
+            flex: 1; background: var(--gg-bg); border: 1px solid var(--gg-border);
+            padding: 12px; border-radius: 10px; text-align: center;
         }
-        .btn:active { opacity: 0.8; transform: scale(0.98); }
-        .btn-outline {
-            background: transparent; border: 1px solid var(--gg-border);
-            color: var(--gg-text); padding: 14px; border-radius: 12px;
-            font-size: 14px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer;
+        .stat-label { font-size: 10px; color: var(--gg-text-muted); text-transform: uppercase; margin-bottom: 5px; }
+        .stat-value { font-size: 14px; font-weight: bold; }
+
+        /* Поиск */
+        .search-bar {
+            background: var(--gg-card); border: 1px solid var(--gg-border);
+            border-radius: 10px; padding: 12px 15px; margin: 0 15px 15px 15px;
+            color: var(--gg-text-muted); font-size: 13px; display: flex; align-items: center; gap: 10px;
         }
 
-        /* --- Сетка маркета --- */
-        .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 15px; }
+        /* Сетка NFT */
+        .market-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 12px; padding: 0 15px;
+        }
         .nft-card {
             background: var(--gg-card); border: 1px solid var(--gg-border);
-            border-radius: 12px; padding: 10px; display: flex; flex-direction: column;
-            animation: fadeIn 0.3s ease-in-out;
+            border-radius: 14px; overflow: hidden; display: flex; flex-direction: column;
+        }
+        .nft-img-container {
+            width: 100%; aspect-ratio: 1; background: #08120d;
+            position: relative; padding: 10px;
         }
         .nft-img {
-            width: 100%; aspect-ratio: 1; background: #0d1a13;
-            border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: center; align-items: center;
-            font-size: 45px; border: 1px solid rgba(76, 175, 80, 0.1);
+            width: 100%; height: 100%; object-fit: contain;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
         }
-        .nft-name { font-size: 13px; font-weight: bold; margin-bottom: 4px; }
-        .nft-price { font-size: 14px; color: var(--gg-gold); font-weight: bold; margin-top: auto; }
+        .nft-info { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; }
+        .nft-name { font-size: 13px; font-weight: bold; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .nft-sub { font-size: 10px; color: var(--gg-text-muted); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .nft-tags { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
+        .nft-tag {
+            font-size: 9px; background: var(--gg-bg); border: 1px solid var(--gg-border);
+            padding: 3px 6px; border-radius: 6px; color: var(--gg-text-muted);
+            display: flex; align-items: center; gap: 3px;
+        }
 
-        /* --- Формы --- */
+        .nft-price {
+            font-size: 14px; color: var(--gg-gold); font-weight: 900;
+            margin-top: auto; display: flex; align-items: center; gap: 4px;
+        }
+
+        /* Кнопки */
+        .btn {
+            background: var(--gg-accent); color: #000;
+            border: none; padding: 14px; border-radius: 10px;
+            font-size: 14px; font-weight: 800; width: 100%;
+            cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        .btn:active { transform: scale(0.98); opacity: 0.9; }
+        .btn-outline {
+            background: transparent; border: 1px solid var(--gg-border);
+            color: var(--gg-text); padding: 14px; border-radius: 10px;
+            font-size: 14px; font-weight: bold; width: 100%; cursor: pointer;
+        }
+
+        /* Формы */
         .input-field {
             width: 100%; background: var(--gg-bg); border: 1px solid var(--gg-border);
-            color: var(--gg-text); padding: 14px 15px; border-radius: 10px; font-size: 14px;
-            outline: none; transition: border 0.2s;
+            color: var(--gg-text); padding: 14px; border-radius: 10px; font-size: 14px;
+            outline: none;
         }
-        .input-field:focus { border-color: var(--gg-accent-light); }
         
-        /* --- Роли --- */
+        /* Роли */
         .role-switch { display: flex; gap: 10px; margin-bottom: 15px; }
         .role-btn {
-            flex: 1; padding: 14px; border-radius: 10px; text-align: center;
-            font-weight: bold; font-size: 14px; background: var(--gg-bg);
-            border: 1px solid var(--gg-border); color: var(--gg-text-muted);
-            cursor: pointer; transition: 0.2s;
+            flex: 1; padding: 12px; border-radius: 10px; text-align: center;
+            font-weight: bold; font-size: 13px; background: var(--gg-bg);
+            border: 1px solid var(--gg-border); color: var(--gg-text-muted); cursor: pointer;
         }
-        .role-btn.active { background: var(--gg-accent); color: #fff; border-color: var(--gg-accent); }
+        .role-btn.active { background: rgba(76, 175, 80, 0.2); color: var(--gg-accent); border-color: var(--gg-accent); }
 
-        /* --- Нижнее меню --- */
+        /* Нижнее меню */
         .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0;
+            position: fixed; bottom: 0; width: 100%; max-width: 480px;
             background: var(--gg-card); border-top: 1px solid var(--gg-border);
             display: flex; justify-content: space-around; padding: 10px 0 15px 0;
             z-index: 100;
@@ -121,26 +157,24 @@
         .nav-item {
             display: flex; flex-direction: column; align-items: center;
             font-size: 10px; color: var(--gg-text-muted); cursor: pointer; gap: 4px;
-            transition: 0.2s; width: 20%;
+            width: 20%; transition: 0.2s;
         }
-        .nav-item.active { color: var(--gg-accent-light); }
-        .nav-item.active .nav-icon { transform: translateY(-2px); }
-        .nav-icon { font-size: 20px; transition: 0.2s; }
+        .nav-item.active { color: var(--gg-accent); }
+        .nav-icon { font-size: 22px; margin-bottom: 2px; }
 
-        /* --- Уведомления --- */
+        /* Сделки */
+        .deal-card { background: var(--gg-bg); border: 1px solid var(--gg-border); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        .deal-status { background: var(--gg-gold); color: #000; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; display: inline-block; }
+        .deal-action { background: rgba(255, 202, 40, 0.1); padding: 12px; border-radius: 8px; font-size: 13px; margin: 10px 0; border-left: 3px solid var(--gg-gold); }
+
+        /* Уведомления */
         .toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--gg-accent-light); color: #000; padding: 12px 24px;
-            border-radius: 20px; font-weight: bold; font-size: 14px;
-            z-index: 1000; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
-            animation: slideDown 0.3s ease;
+            background: var(--gg-accent); color: #000; padding: 12px 20px;
+            border-radius: 10px; font-weight: bold; font-size: 13px;
+            z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            white-space: nowrap;
         }
-        @keyframes slideDown { from { top: -50px; } to { top: 20px; } }
-
-        /* --- Сделки --- */
-        .deal-card { background: #16251c; border: 1px solid #2e7d32; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
-        .deal-status { background: var(--gg-gold); color: #000; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; display: inline-block; }
-        .deal-action { background: rgba(255, 202, 40, 0.1); padding: 12px; border-radius: 8px; font-size: 13px; margin: 10px 0; border-left: 3px solid var(--gg-gold); }
     </style>
 </head>
 <body>
@@ -150,18 +184,16 @@
 <script type="text/babel">
     const { useState, useEffect, useCallback } = React;
 
-    // --- MOCK DATA (Заглушки) ---
+    // РЕАЛЬНЫЕ КАРТИНКИ NFT
     const MOCK_NFTS = [
-        { id: 1, name: "Faith Amulet", price: 7.98, emoji: "🌙", tags: ["Winter", "Pacific"] },
-        { id: 2, name: "Light Sword", price: 11.8, emoji: "⚔️", tags: ["Eva", "Chess"] },
-        { id: 3, name: "Sakura Flower", price: 25.5, emoji: "🌸", tags: ["Spring", "Japan"] },
-        { id: 4, name: "Eternal Rose", price: 5.2, emoji: "🌹", tags: ["Love", "Red"] },
-        { id: 5, name: "Durov's Cap", price: 150.0, emoji: "🧢", tags: ["Rare", "Durov"] },
-        { id: 6, name: "Crystal Ball", price: 42.0, emoji: "🔮", tags: ["Magic", "Future"] },
+        { id: 1, name: "Faith Amulet", num: "#29353", price: 7.98, img: "https://nft.fragment.com/gift/faithamulet-29353.large.jpg", tags: ["Winter", "Pacific"] },
+        { id: 2, name: "Light Sword", num: "#89220", price: 11.8, img: "https://nft.fragment.com/gift/lightsword-89220.large.jpg", tags: ["Eva", "Chess"] },
+        { id: 3, name: "Pool Float", num: "#63903", price: 4.88, img: "https://nft.fragment.com/gift/poolfloat-63903.large.jpg", tags: ["Hon", "Pure"] },
+        { id: 4, name: "Jingle Bells", num: "#17741", price: 10.02, img: "https://nft.fragment.com/gift/jinglebells-17741.large.jpg", tags: ["Spin", "Ivory"] },
+        { id: 5, name: "Sakura Flower", num: "#40837", price: 25.5, img: "https://nft.fragment.com/gift/sakuraflower-40837.large.jpg", tags: ["Spring", "Japan"] },
+        { id: 6, name: "Eternal Rose", num: "#12345", price: 5.2, img: "https://nft.fragment.com/gift/eternalrose-12345.large.jpg", tags: ["Love", "Red"] },
     ];
 
-    // --- КОМПОНЕНТЫ ---
-    
     const Toast = ({ message }) => {
         if (!message) return null;
         return <div className="toast">{message}</div>;
@@ -171,12 +203,9 @@
         <div className="header">
             <div className="logo-area">
                 <div className="logo-icon">G</div>
-                <div>
-                    <div style={{fontSize: '10px', color: 'var(--gg-text-muted)', fontWeight: 'bold'}}>GGSELL</div>
-                    <div className="logo-text">Маркет</div>
-                </div>
+                <div className="logo-text">GGSELL Маркет</div>
             </div>
-            <div className="lang-btn">RU <span>▼</span></div>
+            <div className="lang-btn">RU ▼</div>
         </div>
     );
 
@@ -200,39 +229,51 @@
         </div>
     );
 
-    // --- СТРАНИЦЫ ---
-
     const MarketPage = () => (
         <div>
             <div className="card">
                 <div className="card-title">GGSELL MARKET</div>
-                <h2 style={{margin: '5px 0 10px 0', fontSize: '22px'}}>Подарки Telegram</h2>
-                <p style={{margin: '0 0 15px 0', fontSize: '12px', color: 'var(--gg-text-muted)'}}>Подарки с оплатой в GRAM</p>
-                <div style={{display: 'flex', gap: '10px'}}>
-                    <div style={{flex: 1, background: 'var(--gg-bg)', padding: '12px', borderRadius: '10px', textAlign: 'center'}}>
-                        <div style={{fontSize: '10px', color: 'var(--gg-text-muted)'}}>В ПРОДАЖЕ</div>
-                        <div style={{fontWeight: 'bold'}}>1160</div>
+                <h2 style={{margin: '0 0 5px 0', fontSize: '20px'}}>Подарки Telegram</h2>
+                <p style={{fontSize: '12px', color: 'var(--gg-text-muted)'}}>Подарки с оплатой в GRAM</p>
+                
+                <div className="stats-row">
+                    <div className="stat-box">
+                        <div className="stat-label">В продаже</div>
+                        <div className="stat-value">1160</div>
                     </div>
-                    <div style={{flex: 1, background: 'var(--gg-bg)', padding: '12px', borderRadius: '10px', textAlign: 'center'}}>
-                        <div style={{fontSize: '10px', color: 'var(--gg-text-muted)'}}>МИН. ЦЕНА</div>
-                        <div style={{fontWeight: 'bold'}}>2.48 GRAM</div>
+                    <div className="stat-box">
+                        <div className="stat-label">Мин. цена</div>
+                        <div className="stat-value">2.48 GRAM</div>
+                    </div>
+                    <div className="stat-box">
+                        <div className="stat-label">Оборот</div>
+                        <div className="stat-value">105.8M</div>
                     </div>
                 </div>
             </div>
 
-            <div style={{padding: '0 15px', display: 'flex', gap: '10px', marginBottom: '15px'}}>
-                <div style={{flex: 1, background: 'var(--gg-card)', border: '1px solid var(--gg-border)', padding: '12px 15px', borderRadius: '20px', color: 'var(--gg-text-muted)', fontSize: '13px'}}>🔍 Поиск подарков</div>
+            <div className="search-bar">
+                <span>🔍</span> Поиск подарков
             </div>
 
             <div className="market-grid">
                 {MOCK_NFTS.map(nft => (
                     <div className="nft-card" key={nft.id}>
-                        <div className="nft-img">{nft.emoji}</div>
-                        <div className="nft-name">{nft.name}</div>
-                        <div style={{display: 'flex', gap: '5px', marginBottom: '5px', flexWrap: 'wrap'}}>
-                            {nft.tags.map(t => <span key={t} style={{fontSize: '9px', background: 'var(--gg-bg)', padding: '2px 5px', borderRadius: '4px', color: 'var(--gg-text-muted)'}}>{t}</span>)}
+                        <div className="nft-img-container">
+                            <img src={nft.img} alt={nft.name} className="nft-img" />
                         </div>
-                        <div className="nft-price">{nft.price} GRAM</div>
+                        <div className="nft-info">
+                            <div className="nft-name">{nft.name} {nft.num}</div>
+                            <div className="nft-sub">#{Math.random().toString().slice(2, 10)}...</div>
+                            
+                            <div className="nft-tags">
+                                {nft.tags.map(t => <div className="nft-tag" key={t}>🏷️ {t}</div>)}
+                            </div>
+
+                            <div className="nft-price">
+                                💎 {nft.price} GRAM
+                            </div>
+                        </div>
                     </div>
                 ))}
             </div>
@@ -245,7 +286,7 @@
                 <div>
                     <div className="card">
                         <div className="card-title">GGSELL MARKET</div>
-                        <h2 style={{margin: '5px 0 10px 0', fontSize: '22px'}}>Сделка под защитой</h2>
+                        <h2 style={{margin: '5px 0 10px 0', fontSize: '20px'}}>Сделка под защитой</h2>
                         <p style={{fontSize: '13px', color: 'var(--gg-text-muted)', lineHeight: '1.4'}}>
                             Создайте сделку или войдите по приглашению. Оплата в GRAM удерживается до завершения сделки.
                         </p>
@@ -257,30 +298,22 @@
                             <button className="btn-outline" style={{margin: 0}} onClick={() => setActiveTab('join_deal')}>Войти</button>
                         </div>
 
-                        <div style={{marginTop: '20px'}}>
+                        <div style={{marginTop: '10px'}}>
                             <h3 style={{fontSize: '16px', marginBottom: '15px'}}>Как это работает</h3>
                             
                             <div style={{display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '15px'}}>
-                                <div style={{background: 'var(--gg-accent)', color: '#fff', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', flexShrink: 0}}>1</div>
+                                <div style={{background: 'var(--gg-accent)', color: '#000', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', flexShrink: 0}}>1</div>
                                 <div>
                                     <div style={{fontWeight: 'bold', fontSize: '14px'}}>Создайте сделку</div>
-                                    <div style={{fontSize: '12px', color: 'var(--gg-text-muted)', marginTop: '4px'}}>Выберите, продаёте вы или покупаете согласованный актив.</div>
+                                    <div style={{fontSize: '12px', color: 'var(--gg-text-muted)', marginTop: '4px'}}>Выберите, продаёте вы или покупаете актив.</div>
                                 </div>
                             </div>
 
                             <div style={{display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '15px'}}>
-                                <div style={{background: 'var(--gg-accent)', color: '#fff', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', flexShrink: 0}}>2</div>
+                                <div style={{background: 'var(--gg-accent)', color: '#000', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', flexShrink: 0}}>2</div>
                                 <div>
                                     <div style={{fontWeight: 'bold', fontSize: '14px'}}>Пригласите участника</div>
-                                    <div style={{fontSize: '12px', color: 'var(--gg-text-muted)', marginTop: '4px'}}>Отправьте ссылку или карточку сделки в Telegram.</div>
-                                </div>
-                            </div>
-
-                            <div style={{display: 'flex', alignItems: 'flex-start', gap: '12px'}}>
-                                <div style={{background: 'var(--gg-accent)', color: '#fff', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', flexShrink: 0}}>3</div>
-                                <div>
-                                    <div style={{fontWeight: 'bold', fontSize: '14px'}}>Дождитесь завершения</div>
-                                    <div style={{fontSize: '12px', color: 'var(--gg-text-muted)', marginTop: '4px'}}>Покупатель оплачивает, продавец передаёт согласованный актив.</div>
+                                    <div style={{fontSize: '12px', color: 'var(--gg-text-muted)', marginTop: '4px'}}>Отправьте ссылку или карточку сделки.</div>
                                 </div>
                             </div>
                         </div>
@@ -289,13 +322,11 @@
             );
         }
 
-        // Если есть активная сделка
         return (
             <div>
                 <div className="card" style={{paddingBottom: '10px'}}>
-                    <h2 style={{margin: '0 0 10px 0'}}>Мои активные сделки</h2>
-                    <p style={{fontSize: '12px', color: 'var(--gg-text-muted)', marginBottom: '15px'}}>Откройте карточку сделки, чтобы увидеть следующий шаг.</p>
-
+                    <h2 style={{margin: '0 0 10px 0', fontSize: '20px'}}>Активная сделка</h2>
+                    
                     <div className="deal-card">
                         <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '10px'}}>
                             <div>
@@ -310,16 +341,16 @@
                             <div style={{fontWeight: 'bold'}}>Ваш шаг: {activeDeal.role === 'buyer' ? 'оплатите сделку' : 'ожидайте оплаты'}.</div>
                         </div>
 
-                        <p style={{fontSize: '12px', color: 'var(--gg-text-muted)'}}>Оплатите сделку с внутреннего баланса. Средства хранятся до подтверждения получения актива.</p>
+                        <p style={{fontSize: '12px', color: 'var(--gg-text-muted)'}}>Средства хранятся до подтверждения получения актива.</p>
                         
                         {activeDeal.role === 'buyer' && (
                             <button className="btn" onClick={() => {
                                 if(balance >= parseFloat(activeDeal.price)) {
                                     setBalance(b => b - parseFloat(activeDeal.price));
                                     setActiveDeal({...activeDeal, status: 'paid'});
-                                    showToast('Сделка оплачена! Ожидайте подарок.');
+                                    showToast('Сделка оплачена!');
                                 } else {
-                                    showToast('Недостаточно средств (Фейк)');
+                                    showToast('Недостаточно средств');
                                 }
                             }}>💳 Оплатить сделку</button>
                         )}
@@ -336,8 +367,8 @@
 
         return (
             <div className="card">
-                <h2 style={{margin: '0 0 15px 0'}}>Создать новую сделку</h2>
-                <p style={{fontSize: '13px', color: 'var(--gg-text-muted)', marginBottom: '15px'}}>Сначала выберите свою роль в сделке.</p>
+                <h2 style={{margin: '0 0 15px 0'}}>Создать сделку</h2>
+                <p style={{fontSize: '13px', color: 'var(--gg-text-muted)', marginBottom: '15px'}}>Выберите вашу роль.</p>
 
                 <div className="role-switch">
                     <div className={`role-btn ${role === 'seller' ? 'active' : ''}`} onClick={() => setRole('seller')}>🟢 Я продавец</div>
@@ -345,20 +376,18 @@
                 </div>
 
                 <div style={{marginBottom: '15px'}}>
-                    <input className="input-field" placeholder="Что продаём? Например, подарок Sakura" value={item} onChange={e => setItem(e.target.value)} />
+                    <input className="input-field" placeholder="Что продаём?" value={item} onChange={e => setItem(e.target.value)} />
                 </div>
 
                 <div style={{display: 'flex', gap: '10px', marginBottom: '15px'}}>
-                    <div style={{flex: 1, background: 'var(--gg-bg)', padding: '14px', borderRadius: '10px', color: 'var(--gg-gold)', fontWeight: 'bold', textAlign: 'center'}}>GRAM</div>
+                    <div style={{width: '80px', background: 'var(--gg-bg)', border: '1px solid var(--gg-border)', padding: '14px', borderRadius: '10px', color: 'var(--gg-gold)', fontWeight: 'bold', textAlign: 'center'}}>GRAM</div>
                     <div style={{flex: 1}}>
-                        <input className="input-field" placeholder="Сколько?" type="number" value={price} onChange={e => setPrice(e.target.value)} />
+                        <input className="input-field" placeholder="Цена" type="number" value={price} onChange={e => setPrice(e.target.value)} />
                     </div>
                 </div>
 
-                <p style={{fontSize: '11px', color: 'var(--gg-text-muted)', marginBottom: '15px'}}>GRAM можно оплатить с внутреннего баланса или подтвердить вручную через модератора.</p>
-
-                <button className="btn" onClick={() => onCreate(item, price, role)}>+ Создать сделку</button>
-                <button className="btn-outline" onClick={onBack}>Отмена</button>
+                <button className="btn" onClick={() => onCreate(item, price, role)}>Создать сделку</button>
+                <button className="btn-outline" onClick={onBack} style={{marginTop: '10px'}}>Отмена</button>
             </div>
         );
     };
@@ -367,13 +396,13 @@
         const [code, setCode] = useState('');
         return (
             <div className="card">
-                <h2 style={{margin: '0 0 15px 0'}}>🔒 Войти в сделку по ссылке</h2>
-                <p style={{fontSize: '13px', color: 'var(--gg-text-muted)', marginBottom: '15px'}}>Вставьте ссылку или код от второго участника.</p>
+                <h2 style={{margin: '0 0 15px 0'}}>Войти в сделку</h2>
+                <p style={{fontSize: '13px', color: 'var(--gg-text-muted)', marginBottom: '15px'}}>Вставьте код от участника.</p>
                 
-                <input className="input-field" placeholder="pC7clhEg8NEda79RoTcHPgDg" value={code} onChange={e => setCode(e.target.value)} style={{marginBottom: '15px'}} />
+                <input className="input-field" placeholder="Код сделки" value={code} onChange={e => setCode(e.target.value)} style={{marginBottom: '15px'}} />
                 
-                <button className="btn" onClick={() => onJoin(code)}>Войти в сделку →</button>
-                <button className="btn-outline" onClick={onBack}>Назад</button>
+                <button className="btn" onClick={() => onJoin(code)}>Войти</button>
+                <button className="btn-outline" onClick={onBack} style={{marginTop: '10px'}}>Назад</button>
             </div>
         );
     };
@@ -385,61 +414,50 @@
             <div>
                 <div className="card">
                     <div className="card-title">АККАУНТ GGSELL</div>
-                    <h2 style={{margin: '5px 0 15px 0', fontSize: '24px'}}>Профиль</h2>
+                    <h2 style={{margin: '5px 0 15px 0', fontSize: '20px'}}>Профиль</h2>
                     
-                    <div style={{display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '25px'}}>
-                        <div style={{width: '65px', height: '65px', borderRadius: '50%', background: 'linear-gradient(135deg, #4caf50, #2e7d32)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '32px', boxShadow: '0 0 15px rgba(76, 175, 80, 0.3)'}}>👤</div>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px'}}>
+                        <div style={{width: '60px', height: '60px', borderRadius: '50%', background: 'var(--gg-accent)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '28px', color: '#000', fontWeight: 'bold'}}>
+                            {user?.first_name?.charAt(0) || 'U'}
+                        </div>
                         <div>
-                            <div style={{fontWeight: 'bold', fontSize: '20px'}}>@{user?.username || 'user'}</div>
-                            <div style={{fontSize: '11px', color: 'var(--gg-text-muted)', marginTop: '2px'}}>TELEGRAM ID {user?.id}</div>
+                            <div style={{fontWeight: 'bold', fontSize: '18px'}}>@{user?.username || 'user'}</div>
+                            <div style={{fontSize: '11px', color: 'var(--gg-text-muted)', marginTop: '2px'}}>ID {user?.id}</div>
                         </div>
                     </div>
 
-                    <div style={{display: 'flex', gap: '10px', marginBottom: '15px'}}>
-                        <div style={{flex: 1, background: 'var(--gg-bg)', padding: '15px', borderRadius: '12px', border: '1px solid var(--gg-border)'}}>
+                    <div style={{display: 'flex', gap: '10px'}}>
+                        <div style={{flex: 1, background: 'var(--gg-bg)', padding: '15px', borderRadius: '10px'}}>
                             <div style={{fontSize: '10px', color: 'var(--gg-text-muted)', marginBottom: '5px'}}>БАЛАНС</div>
-                            <div style={{fontWeight: 'bold', fontSize: '20px', color: 'var(--gg-accent-light)'}}>{balance} GRAM</div>
+                            <div style={{fontWeight: 'bold', fontSize: '18px', color: 'var(--gg-accent)'}}>{balance} GRAM</div>
                         </div>
-                        <div style={{flex: 1, background: 'var(--gg-bg)', padding: '15px', borderRadius: '12px', border: '1px solid var(--gg-border)'}}>
+                        <div style={{flex: 1, background: 'var(--gg-bg)', padding: '15px', borderRadius: '10px'}}>
                             <div style={{fontSize: '10px', color: 'var(--gg-text-muted)', marginBottom: '5px'}}>ПОТРАЧЕНО</div>
-                            <div style={{fontWeight: 'bold', fontSize: '20px'}}>0 GRAM</div>
-                        </div>
-                    </div>
-                    
-                    <div style={{display: 'flex', gap: '10px', marginBottom: '20px'}}>
-                        <div style={{flex: 1, background: 'var(--gg-bg)', padding: '15px', borderRadius: '12px', border: '1px solid var(--gg-border)'}}>
-                            <div style={{fontSize: '10px', color: 'var(--gg-text-muted)', marginBottom: '5px'}}>ПОКУПОК</div>
-                            <div style={{fontWeight: 'bold', fontSize: '18px'}}>0</div>
-                        </div>
-                        <div style={{flex: 1, background: 'var(--gg-bg)', padding: '15px', borderRadius: '12px', border: '1px solid var(--gg-border)'}}>
-                            <div style={{fontSize: '10px', color: 'var(--gg-text-muted)', marginBottom: '5px'}}>ЯЗЫК</div>
-                            <div style={{fontWeight: 'bold', fontSize: '14px'}}>Русский</div>
+                            <div style={{fontWeight: 'bold', fontSize: '18px'}}>0 GRAM</div>
                         </div>
                     </div>
                 </div>
 
                 <div className="card">
-                    <div style={{fontWeight: 'bold', marginBottom: '15px', fontSize: '16px'}}>Пополнить баланс</div>
+                    <div style={{fontWeight: 'bold', marginBottom: '15px'}}>Пополнить баланс</div>
                     <div style={{display: 'flex', gap: '10px'}}>
                         <input className="input-field" type="number" value={depositAmount} onChange={e => setDepositAmount(e.target.value)} style={{flex: 1}} />
-                        <button className="btn" style={{width: 'auto', margin: 0, padding: '0 25px', background: 'var(--gg-gold)', color: '#000'}} onClick={() => onDeposit(depositAmount)}>💰 Пополнить</button>
+                        <button className="btn" style={{width: 'auto', margin: 0, padding: '0 20px', background: 'var(--gg-gold)', color: '#000'}} onClick={() => onDeposit(depositAmount)}>💰 Пополнить</button>
                     </div>
-                    <p style={{fontSize: '11px', color: 'var(--gg-text-muted)', marginTop: '10px', lineHeight: '1.4'}}>* Деньги уходят на кошелек админа, вам начисляются фейковые цифры для теста.</p>
                 </div>
 
                 <div className="card">
-                    <div style={{fontWeight: 'bold', marginBottom: '15px', fontSize: '16px'}}>Вывести средства</div>
+                    <div style={{fontWeight: 'bold', marginBottom: '15px'}}>Вывести средства</div>
                     <input className="input-field" placeholder="Адрес GRAM кошелька" style={{marginBottom: '10px'}} />
                     <div style={{display: 'flex', gap: '10px'}}>
                         <input className="input-field" placeholder="100" type="number" style={{flex: 1}} />
-                        <button className="btn" style={{width: 'auto', margin: 0, padding: '0 25px'}} onClick={() => alert('Вывод недоступен (Фейк)')}>⬆️ Вывести</button>
+                        <button className="btn" style={{width: 'auto', margin: 0, padding: '0 20px'}} onClick={() => alert('Вывод недоступен')}>⬆️ Вывести</button>
                     </div>
                 </div>
             </div>
         );
     };
 
-    // --- ГЛАВНЫЙ КОМПОНЕНТ ---
     function App() {
         const [activeTab, setActiveTab] = useState('market');
         const [user, setUser] = useState(null);
@@ -454,7 +472,6 @@
                 const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
                 if (tgUser) setUser(tgUser);
             } else {
-                // Для теста в браузере
                 setUser({ id: 889451175, username: 'eggod', first_name: 'Egor' });
             }
         }, []);
@@ -468,7 +485,7 @@
             const val = parseFloat(amount);
             if(val > 0) {
                 setBalance(prev => prev + val);
-                showToast(`Баланс пополнен на ${val} GRAM (Фейк)`);
+                showToast(`Баланс пополнен на ${val} GRAM`);
             }
         };
 
@@ -493,7 +510,6 @@
                 showToast('Введите код');
                 return;
             }
-            // Имитация успешного входа
             setActiveDeal({
                 id: Math.floor(10000 + Math.random() * 90000),
                 item: "Sakura Flower",
