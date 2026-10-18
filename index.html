@@ -1,544 +1,569 @@
-<!DOCTYPE html>
-<html lang="ru">
+<!doctype html>
+<html lang="ru" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GGSELL Маркет</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <style>
-        :root {
-            --gg-bg: #060b09;
-            --gg-card: #111a15;
-            --gg-accent: #4caf50;
-            --gg-text: #ffffff;
-            --gg-text-muted: #8fa89a;
-            --gg-gold: #ffca28;
-            --gg-border: #1f3328;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--gg-bg);
-            color: var(--gg-text);
-            padding-bottom: 80px;
-            display: flex;
-            justify-content: center; /* Центрируем на компе */
-        }
-
-        /* Контейнер для мобилки (как в TG) */
-        #root {
-            width: 100%;
-            max-width: 480px; 
-            min-height: 100vh;
-            background: var(--gg-bg);
-            position: relative;
-            border-left: 1px solid var(--gg-border);
-            border-right: 1px solid var(--gg-border);
-        }
-
-        /* Шапка */
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; background: var(--gg-bg);
-            position: sticky; top: 0; z-index: 10;
-            border-bottom: 1px solid var(--gg-border);
-        }
-        .logo-area { display: flex; align-items: center; gap: 10px; }
-        .logo-icon {
-            width: 32px; height: 32px; background: var(--gg-accent);
-            border-radius: 8px; display: flex; justify-content: center; align-items: center;
-            font-weight: 900; color: #000; font-size: 18px;
-        }
-        .logo-text { font-size: 16px; font-weight: 900; }
-        .lang-btn {
-            background: var(--gg-card); border: 1px solid var(--gg-border);
-            color: var(--gg-text); padding: 6px 10px; border-radius: 8px;
-            font-weight: bold; font-size: 12px; cursor: pointer;
-        }
-
-        /* Карточки */
-        .card {
-            background: var(--gg-card); border: 1px solid var(--gg-border);
-            border-radius: 14px; padding: 16px; margin: 15px;
-        }
-        .card-title { font-size: 11px; font-weight: bold; color: var(--gg-accent); letter-spacing: 1px; margin-bottom: 5px; }
-        
-        /* Статистика */
-        .stats-row { display: flex; gap: 10px; margin-top: 15px; }
-        .stat-box {
-            flex: 1; background: var(--gg-bg); border: 1px solid var(--gg-border);
-            padding: 12px; border-radius: 10px; text-align: center;
-        }
-        .stat-label { font-size: 10px; color: var(--gg-text-muted); text-transform: uppercase; margin-bottom: 5px; }
-        .stat-value { font-size: 14px; font-weight: bold; }
-
-        /* Поиск */
-        .search-bar {
-            background: var(--gg-card); border: 1px solid var(--gg-border);
-            border-radius: 10px; padding: 12px 15px; margin: 0 15px 15px 15px;
-            color: var(--gg-text-muted); font-size: 13px; display: flex; align-items: center; gap: 10px;
-        }
-
-        /* Сетка NFT */
-        .market-grid {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 12px; padding: 0 15px;
-        }
-        .nft-card {
-            background: var(--gg-card); border: 1px solid var(--gg-border);
-            border-radius: 14px; overflow: hidden; display: flex; flex-direction: column;
-        }
-        .nft-img-container {
-            width: 100%; aspect-ratio: 1; background: #08120d;
-            position: relative; padding: 10px;
-        }
-        .nft-img {
-            width: 100%; height: 100%; object-fit: contain;
-            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
-        }
-        .nft-info { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; }
-        .nft-name { font-size: 13px; font-weight: bold; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .nft-sub { font-size: 10px; color: var(--gg-text-muted); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        .nft-tags { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
-        .nft-tag {
-            font-size: 9px; background: var(--gg-bg); border: 1px solid var(--gg-border);
-            padding: 3px 6px; border-radius: 6px; color: var(--gg-text-muted);
-            display: flex; align-items: center; gap: 3px;
-        }
-
-        .nft-price {
-            font-size: 14px; color: var(--gg-gold); font-weight: 900;
-            margin-top: auto; display: flex; align-items: center; gap: 4px;
-        }
-
-        /* Кнопки */
-        .btn {
-            background: var(--gg-accent); color: #000;
-            border: none; padding: 14px; border-radius: 10px;
-            font-size: 14px; font-weight: 800; width: 100%;
-            cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;
-        }
-        .btn:active { transform: scale(0.98); opacity: 0.9; }
-        .btn-outline {
-            background: transparent; border: 1px solid var(--gg-border);
-            color: var(--gg-text); padding: 14px; border-radius: 10px;
-            font-size: 14px; font-weight: bold; width: 100%; cursor: pointer;
-        }
-
-        /* Формы */
-        .input-field {
-            width: 100%; background: var(--gg-bg); border: 1px solid var(--gg-border);
-            color: var(--gg-text); padding: 14px; border-radius: 10px; font-size: 14px;
-            outline: none;
-        }
-        
-        /* Роли */
-        .role-switch { display: flex; gap: 10px; margin-bottom: 15px; }
-        .role-btn {
-            flex: 1; padding: 12px; border-radius: 10px; text-align: center;
-            font-weight: bold; font-size: 13px; background: var(--gg-bg);
-            border: 1px solid var(--gg-border); color: var(--gg-text-muted); cursor: pointer;
-        }
-        .role-btn.active { background: rgba(76, 175, 80, 0.2); color: var(--gg-accent); border-color: var(--gg-accent); }
-
-        /* Нижнее меню */
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; max-width: 480px;
-            background: var(--gg-card); border-top: 1px solid var(--gg-border);
-            display: flex; justify-content: space-around; padding: 10px 0 15px 0;
-            z-index: 100;
-        }
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center;
-            font-size: 10px; color: var(--gg-text-muted); cursor: pointer; gap: 4px;
-            width: 20%; transition: 0.2s;
-        }
-        .nav-item.active { color: var(--gg-accent); }
-        .nav-icon { font-size: 22px; margin-bottom: 2px; }
-
-        /* Сделки */
-        .deal-card { background: var(--gg-bg); border: 1px solid var(--gg-border); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
-        .deal-status { background: var(--gg-gold); color: #000; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; display: inline-block; }
-        .deal-action { background: rgba(255, 202, 40, 0.1); padding: 12px; border-radius: 8px; font-size: 13px; margin: 10px 0; border-left: 3px solid var(--gg-gold); }
-
-        /* Уведомления */
-        .toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--gg-accent); color: #000; padding: 12px 20px;
-            border-radius: 10px; font-weight: bold; font-size: 13px;
-            z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            white-space: nowrap;
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>mog Маркет</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{
+  --bg:#F5F9F6; --card:#FFFFFF; --line:#E4EDE7; --text:#16231B; --muted:#6B7F73;
+  --g:#1FB36B; --g-dark:#169A58; --g-soft:#E6F6EE; --red:#E5484D; --red-soft:#FDECEC;
+  --amber-bg:#FFF5DC; --amber-tx:#9A6A00; --gray-bg:#EEF2EF; --nav:rgba(255,255,255,.96);
+  --top:rgba(245,249,246,.92); --ov:rgba(14,28,20,.4); --copy:#cfe0d5;
+  --r:16px; --shadow:0 1px 2px rgba(22,35,27,.04),0 4px 14px rgba(22,35,27,.05);
+}
+:root[data-theme="dark"]{
+  --bg:#0E1511; --card:#172019; --line:#243229; --text:#E7F0EA; --muted:#8CA195;
+  --g:#27C27A; --g-dark:#34D58A; --g-soft:rgba(39,194,122,.14); --red:#FF6B70; --red-soft:rgba(255,107,112,.13);
+  --amber-bg:rgba(232,163,23,.16); --amber-tx:#F0BE55; --gray-bg:#212C25; --nav:rgba(18,26,21,.96);
+  --top:rgba(14,21,17,.92); --ov:rgba(0,0,0,.6); --copy:#34463a;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;font-size:15px;transition:background .2s,color .2s}
+body{padding-bottom:84px;min-height:100vh}
+button,input,textarea,select{font:inherit;color:inherit}
+.top{position:sticky;top:0;z-index:5;background:var(--top);backdrop-filter:blur(10px);
+  padding:14px 16px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:18px;letter-spacing:-.2px}
+.logo i{width:30px;height:30px;border-radius:10px;background:var(--g);display:grid;place-items:center;
+  color:#fff;font-style:normal;font-weight:800;font-size:15px}
+.logo span{color:var(--g)}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-weight:600;font-size:14px}
+.theme{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--card);cursor:pointer;
+  display:grid;place-items:center;padding:0;flex:none}
+.theme svg{width:19px;height:19px;stroke:var(--text);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+main{padding:4px 16px 16px;max-width:560px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:14px}
+.stack>*+*{margin-top:10px}
+.row{display:flex;align-items:center;gap:10px}
+.sp{justify-content:space-between}
+.muted{color:var(--muted);font-size:13px}
+h2{margin:6px 0 10px;font-size:19px;letter-spacing:-.2px}
+.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:600;cursor:pointer;background:var(--g);color:#fff;
+  transition:.15s;width:100%}
+.btn:active{transform:scale(.98);background:var(--g-dark)}
+.btn.soft{background:var(--g-soft);color:var(--g-dark)}
+.btn.ghost{background:var(--card);border:1px solid var(--line);color:var(--text)}
+.btn.red{background:var(--red-soft);color:var(--red)}
+.btn.sm{width:auto;padding:8px 14px;font-size:14px}
+.btn[disabled]{opacity:.5}
+input,textarea,select{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 13px;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(31,179,107,.16)}
+textarea{resize:none;min-height:84px}
+label{display:block;font-size:13px;color:var(--muted);margin:12px 0 5px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{white-space:nowrap;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;font-size:14px;cursor:pointer}
+.chip.on{background:var(--g);border-color:var(--g);color:#fff}
+.tag{display:inline-block;background:var(--g-soft);color:var(--g-dark);border-radius:8px;padding:3px 8px;font-size:12px;font-weight:600}
+.tag.amber{background:var(--amber-bg);color:var(--amber-tx)}.tag.red{background:var(--red-soft);color:var(--red)}.tag.gray{background:var(--gray-bg);color:var(--muted)}
+.price{font-weight:700;font-size:17px;color:var(--g-dark);white-space:nowrap}
+.item .t{font-weight:600;font-size:16px;margin:6px 0 3px}
+.item .d{color:var(--muted);font-size:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bal{background:linear-gradient(135deg,#22B873,#16965A);color:#fff;border:0}
+.bal .big{font-size:32px;font-weight:700;letter-spacing:-.8px;margin:4px 0 2px}
+.bal .muted{color:rgba(255,255,255,.82)}
+.empty{text-align:center;color:var(--muted);padding:36px 10px}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--nav);backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);display:flex;padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
+.tabs button{flex:1;border:0;background:none;color:var(--muted);font-size:11.5px;font-weight:600;display:flex;
+  flex-direction:column;align-items:center;gap:3px;padding:4px;cursor:pointer}
+.tabs button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabs button.on{color:var(--g)}
+.fab{position:fixed;right:16px;bottom:88px;z-index:5;width:auto;box-shadow:0 8px 22px rgba(31,179,107,.35);border-radius:999px;padding:13px 20px}
+.ov{position:fixed;inset:0;background:var(--ov);z-index:20;display:none;align-items:flex-end;justify-content:center}
+.ov.show{display:flex}
+.sheet{background:var(--card);width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));
+  max-height:90vh;overflow:auto;animation:up .22s ease}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.grab{width:38px;height:4px;border-radius:4px;background:var(--line);margin:0 auto 12px}
+.seg{display:flex;background:var(--bg);border-radius:12px;padding:4px;margin-bottom:6px}
+.seg button{flex:1;border:0;background:none;padding:9px;border-radius:9px;font-weight:600;color:var(--muted);cursor:pointer}
+.seg button.on{background:var(--card);color:var(--g-dark);box-shadow:var(--shadow)}
+.copy{background:var(--bg);border:1px dashed var(--copy);border-radius:12px;padding:11px 12px;word-break:break-all;font-size:13.5px;cursor:pointer}
+.toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:#16231B;color:#fff;padding:10px 16px;
+  border-radius:12px;z-index:50;font-size:14px;opacity:0;pointer-events:none;transition:.2s;max-width:90%}
+.toast.show{opacity:1}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.kv:last-child{border:0}
+.kv b{font-weight:600;text-align:right}
+/* карточки лотов */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gcard{position:relative;border-radius:20px;padding:10px;color:#fff;cursor:pointer;overflow:hidden;
+  box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:214px}
+.gcard::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 30%,rgba(255,255,255,.22),transparent 62%);pointer-events:none}
+.ico{position:relative;z-index:1;width:34px;height:34px;border-radius:50%;border:0;background:rgba(0,0,0,.22);
+  display:grid;place-items:center;cursor:pointer;padding:0;position:absolute;top:10px}
+.ico.l{left:10px}.ico.r{right:10px}
+.ico svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.ico svg.on{fill:#fff}
+.art{flex:1;display:grid;place-items:center;padding:30px 4px 4px;position:relative}
+.art img{max-width:84%;max-height:104px;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(0,0,0,.28))}
+.art .emo{font-size:64px;line-height:1;filter:drop-shadow(0 8px 10px rgba(0,0,0,.25))}
+.gname{position:relative;display:flex;justify-content:space-between;align-items:baseline;gap:6px;font-weight:700;font-size:14px;margin:6px 2px 8px}
+.gname span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gname em{font-style:normal;opacity:.7;font-weight:600;font-size:12px;flex:none}
+.gbtn{position:relative;background:rgba(255,255,255,.94);color:#12743F;border-radius:999px;text-align:center;padding:10px;font-weight:700;font-size:15px}
+.hero{border-radius:20px;height:170px;display:grid;place-items:center;position:relative;overflow:hidden;margin-bottom:12px}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 35%,rgba(255,255,255,.25),transparent 65%)}
+.hero img{max-height:130px;max-width:70%;position:relative;filter:drop-shadow(0 10px 12px rgba(0,0,0,.3))}
+.hero .emo{font-size:84px;position:relative}
+.sw{display:flex;gap:10px;flex-wrap:wrap}
+.sw i{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid transparent;box-shadow:0 0 0 1px var(--line)}
+.sw i.on{border-color:var(--card);box-shadow:0 0 0 2.5px var(--g)}
+/* профиль / админка */
+.ava{width:56px;height:56px;border-radius:50%;background:var(--g-soft);color:var(--g-dark);display:grid;place-items:center;font-size:24px;font-weight:700;flex:none}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.stat b{display:block;font-size:18px;letter-spacing:-.3px;margin-top:3px}
+.stat.wide{grid-column:span 2}
+.switch{width:46px;height:28px;border-radius:99px;background:var(--gray-bg);border:1px solid var(--line);position:relative;cursor:pointer;flex:none}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:var(--muted);transition:.2s}
+[data-theme="dark"] .switch{background:var(--g);border-color:var(--g)}
+[data-theme="dark"] .switch::after{left:20px;background:#fff}
+.warn{background:var(--amber-bg);color:var(--amber-tx);border-radius:12px;padding:10px 12px;font-size:13px;margin:10px 0}
+</style>
 </head>
 <body>
+<div class="top">
+  <div class="logo"><i>m</i><div>mog <span>Маркет</span></div></div>
+  <div class="row">
+    <div class="pill" id="topBal">…</div>
+    <button class="theme" id="themeBtn" aria-label="Тема" onclick="toggleTheme()"></button>
+  </div>
+</div>
+<main id="main"></main>
+<button class="btn fab" id="fab" style="display:none" onclick="newListing()">+ Выставить лот</button>
 
-<div id="root"></div>
+<nav class="tabs">
+  <button data-t="market" class="on"><svg viewBox="0 0 24 24"><path d="M4 7h16l-1.5 11a2 2 0 0 1-2 1.7H7.5a2 2 0 0 1-2-1.7L4 7z"/><path d="M8.5 7a3.5 3.5 0 0 1 7 0"/></svg>Маркет</button>
+  <button data-t="deals"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg>Сделки</button>
+  <button data-t="wallet"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16.5 14.5h.01"/></svg>Кошелёк</button>
+  <button data-t="profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.7"/><path d="M4.5 20c.9-3.6 3.8-5.5 7.5-5.5s6.6 1.9 7.5 5.5"/></svg>Профиль</button>
+</nav>
 
-<script type="text/babel">
-    const { useState, useEffect, useCallback } = React;
+<div class="ov" id="ov" onclick="if(event.target===this)closeSheet()"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
 
-    // РЕАЛЬНЫЕ КАРТИНКИ NFT
-    const MOCK_NFTS = [
-        { id: 1, name: "Faith Amulet", num: "#29353", price: 7.98, img: "https://nft.fragment.com/gift/faithamulet-29353.large.jpg", tags: ["Winter", "Pacific"] },
-        { id: 2, name: "Light Sword", num: "#89220", price: 11.8, img: "https://nft.fragment.com/gift/lightsword-89220.large.jpg", tags: ["Eva", "Chess"] },
-        { id: 3, name: "Pool Float", num: "#63903", price: 4.88, img: "https://nft.fragment.com/gift/poolfloat-63903.large.jpg", tags: ["Hon", "Pure"] },
-        { id: 4, name: "Jingle Bells", num: "#17741", price: 10.02, img: "https://nft.fragment.com/gift/jinglebells-17741.large.jpg", tags: ["Spin", "Ivory"] },
-        { id: 5, name: "Sakura Flower", num: "#40837", price: 25.5, img: "https://nft.fragment.com/gift/sakuraflower-40837.large.jpg", tags: ["Spring", "Japan"] },
-        { id: 6, name: "Eternal Rose", num: "#12345", price: 5.2, img: "https://nft.fragment.com/gift/eternalrose-12345.large.jpg", tags: ["Love", "Red"] },
-    ];
+<script>
+const tg = window.Telegram?.WebApp;
+const S = { me:null, tab:'market', cat:'', q:'', adm:'ov', draft:{} };
+const CATS = ['Подарки','Аккаунты','Услуги','Другое'];
+const STATUS = {
+  open:['Ждёт покупателя','amber'], funded:['Оплачено','amber'], delivered:['Передано','amber'],
+  completed:['Завершена',''], disputed:['Спор','red'], cancelled:['Отменена','gray'], refunded:['Возврат','gray']
+};
+const BG = {
+  mint:'linear-gradient(160deg,#63D6A4,#1B8C61)', rose:'linear-gradient(160deg,#CF6F9D,#7B3459)',
+  ocean:'linear-gradient(160deg,#5BBBD8,#2A6D90)', violet:'linear-gradient(160deg,#8F7DEC,#4A3CA8)',
+  sunset:'linear-gradient(160deg,#F2975F,#A64A2B)', graphite:'linear-gradient(160deg,#53606B,#1B2229)'
+};
+const EMOJIS = ['🎁','🕯️','🧦','🖊️','🔔','💍','🧸','🚀','👑','💎','🍀','🎂'];
+const ICON = {
+  heart:'<svg viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.7a4.3 4.3 0 0 1 7.5 2.6c0 5.6-7.5 10.2-7.5 10.2z"/></svg>',
+  heartOn:'<svg class="on" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.7a4.3 4.3 0 0 1 7.5 2.6c0 5.6-7.5 10.2-7.5 10.2z"/></svg>',
+  cart:'<svg viewBox="0 0 24 24"><path d="M3.5 4.5h2.2l1.8 10h9.6l1.7-7.2H7"/><circle cx="9.5" cy="19" r="1.2"/><circle cx="16.5" cy="19" r="1.2"/></svg>',
+  sun:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>',
+  moon:'<svg viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>'
+};
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ton = n => (n/1e9).toLocaleString('ru',{maximumFractionDigits:3}) + ' TON';
+const date = t => new Date(t*1000).toLocaleString('ru',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+const lsGet = (k,d) => { try{ const v=localStorage.getItem(k); return v===null?d:v; }catch(e){ return d; } };
+const lsSet = (k,v) => { try{ localStorage.setItem(k,v); }catch(e){} };
 
-    const Toast = ({ message }) => {
-        if (!message) return null;
-        return <div className="toast">{message}</div>;
+/* ───── Тема ───── */
+function applyTheme(t){
+  document.documentElement.dataset.theme = t;
+  $('#themeBtn').innerHTML = t==='dark' ? ICON.sun : ICON.moon;
+  try{ tg?.setHeaderColor(t==='dark'?'#0E1511':'#F5F9F6'); tg?.setBackgroundColor(t==='dark'?'#0E1511':'#F5F9F6'); }catch(e){}
+}
+function toggleTheme(){
+  const t = document.documentElement.dataset.theme==='dark' ? 'light' : 'dark';
+  lsSet('mog_theme', t); applyTheme(t); tg?.HapticFeedback?.impactOccurred('light');
+}
+if (tg) { tg.ready(); tg.expand(); }
+applyTheme(lsGet('mog_theme', tg?.colorScheme==='dark' ? 'dark' : 'light'));
+
+/* ───── Утилиты ───── */
+function toast(t){ const e=$('#toast'); e.textContent=t; e.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>e.classList.remove('show'),2600); }
+async function api(path, method='GET', body){
+  const r = await fetch('/api'+path, { method, headers:{'Content-Type':'application/json','X-Init-Data': tg?.initData || ''}, body: body?JSON.stringify(body):undefined });
+  const j = await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(j.error || 'Ошибка');
+  return j;
+}
+async function act(fn){ try{ return await fn(); }catch(e){ toast(e.message); tg?.HapticFeedback?.notificationOccurred('error'); } }
+function openSheet(html){ $('#sheet').innerHTML='<div class="grab"></div>'+html; $('#ov').classList.add('show'); }
+function closeSheet(){ $('#ov').classList.remove('show'); }
+async function refreshMe(){ S.me = await api('/me'); $('#topBal').textContent = ton(S.me.balance); }
+function copy(t){ navigator.clipboard?.writeText(t); toast('Скопировано'); tg?.HapticFeedback?.impactOccurred('light'); }
+const FAV = new Set(JSON.parse(lsGet('mog_fav','[]')));
+function toggleFav(id){ FAV.has(id)?FAV.delete(id):FAV.add(id); lsSet('mog_fav',JSON.stringify([...FAV])); renderList(); tg?.HapticFeedback?.selectionChanged(); }
+
+/* ───── Вкладки ───── */
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { S.tab = b.dataset.t; render(); });
+async function render(){
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t===S.tab));
+  $('#fab').style.display = S.tab==='market' ? 'block' : 'none';
+  await act(refreshMe);
+  if(S.tab==='market') return renderMarket();
+  if(S.tab==='deals') return renderDeals();
+  if(S.tab==='wallet') return renderWallet();
+  if(S.tab==='profile') return renderProfile();
+  if(S.tab==='admin') return renderAdmin();
+}
+
+/* ───── Маркет ───── */
+function cardHTML(l){
+  const art = l.image ? `<img src="${esc(l.image)}" alt="">` : `<div class="emo">${esc(l.emoji||'🎁')}</div>`;
+  return `<div class="gcard" style="background:${BG[l.bg]||BG.mint}" onclick="openListing(${l.id})">
+    <button class="ico l" onclick="event.stopPropagation();toggleFav(${l.id})">${FAV.has(l.id)?ICON.heartOn:ICON.heart}</button>
+    <button class="ico r" onclick="event.stopPropagation();openListing(${l.id})">${ICON.cart}</button>
+    <div class="art">${art}</div>
+    <div class="gname"><span>${esc(l.title)}</span>${l.gift_num?`<em>#${l.gift_num}</em>`:''}</div>
+    <div class="gbtn">${ton(l.price)}</div></div>`;
+}
+async function renderMarket(){
+  $('#main').innerHTML = `
+    <input id="q" placeholder="Поиск по лотам" value="${esc(S.q)}" style="margin:2px 0 10px">
+    <div class="chips"><div class="chip ${S.cat===''?'on':''}" data-c="">Все</div>
+      <div class="chip ${S.cat==='fav'?'on':''}" data-c="fav">♥ Избранное</div>
+      ${CATS.map(c=>`<div class="chip ${S.cat===c?'on':''}" data-c="${c}">${c}</div>`).join('')}</div>
+    <div id="list"></div>`;
+  $('#q').oninput = e => { S.q = e.target.value; clearTimeout(renderMarket.t); renderMarket.t=setTimeout(loadList,250); };
+  document.querySelectorAll('.chip').forEach(c => c.onclick = () => { S.cat=c.dataset.c; renderMarket(); });
+  loadList();
+}
+async function loadList(){
+  const cat = S.cat==='fav' ? '' : S.cat;
+  const items = await act(()=>api(`/listings?q=${encodeURIComponent(S.q)}&cat=${encodeURIComponent(cat)}`));
+  if(!items) return;
+  window._items = items; renderList();
+}
+function renderList(){
+  if(S.tab!=='market' || !$('#list')) return;
+  let items = window._items || [];
+  if(S.cat==='fav') items = items.filter(l=>FAV.has(l.id));
+  $('#list').innerHTML = items.length ? `<div class="grid">${items.map(cardHTML).join('')}</div>`
+    : `<div class="empty">${S.cat==='fav'?'В избранном пока ничего':'Пока здесь пусто.<br>Выставьте первый лот 👇'}</div>`;
+}
+function openListing(id){
+  const l = (window._items||[]).find(x=>x.id===id); if(!l) return;
+  const art = l.image ? `<img src="${esc(l.image)}" alt="">` : `<div class="emo">${esc(l.emoji||'🎁')}</div>`;
+  openSheet(`
+    <div class="hero" style="background:${BG[l.bg]||BG.mint}">${art}</div>
+    <div class="row sp"><span class="tag">${esc(l.category)}</span>${l.gift_num?`<span class="muted">#${l.gift_num}</span>`:''}</div>
+    <h2 style="margin-top:10px">${esc(l.title)}</h2>
+    <p class="muted" style="white-space:pre-wrap;font-size:14px;margin-top:-4px">${esc(l.descr) || 'Без описания'}</p>
+    <div class="kv"><span>Цена</span><b>${ton(l.price)}</b></div>
+    <div class="kv"><span>Продавец</span><b>${esc(l.seller_name)}</b></div>
+    <div class="kv"><span>Защита</span><b>Гарант-сделка</b></div>
+    <p class="muted">Деньги замораживаются и уходят продавцу только после вашего подтверждения получения.</p>
+    ${l.mine
+      ? `<button class="btn red" onclick="delListing(${l.id})">Снять с продажи</button>`
+      : `<button class="btn" onclick="buy(${l.id})">Купить за ${ton(l.price)}</button>`}
+    ${S.me?.admin && !l.mine ? `<div style="height:8px"></div><button class="btn ghost" onclick="admRemoveLot(${l.id})">Модерация: снять лот</button>`:''}`);
+}
+const buy = id => act(async()=>{ const r = await api(`/listings/${id}/buy`,'POST'); closeSheet(); toast('Куплено, деньги заморожены'); S.tab='deals'; await render(); openDeal(r.code); });
+const delListing = id => act(async()=>{ await api(`/listings/${id}`,'DELETE'); closeSheet(); render(); });
+const admRemoveLot = id => act(async()=>{ await api(`/admin/listings/${id}/remove`,'POST'); closeSheet(); toast('Лот снят'); render(); });
+
+function newListing(){
+  S.draft = { bg:'mint', emoji:'🎁', image:null };
+  openSheet(`<h2>Новый лот</h2>
+    <div class="hero" id="pv" style="background:${BG.mint};height:140px"><div class="emo" id="pvArt">🎁</div></div>
+    <label>Фон карточки</label>
+    <div class="sw" id="sw">${Object.keys(BG).map(k=>`<i data-k="${k}" class="${k==='mint'?'on':''}" style="background:${BG[k]}" onclick="setBg('${k}')"></i>`).join('')}</div>
+    <label>Картинка</label>
+    <div class="chips" style="padding-bottom:4px">${EMOJIS.map(e=>`<div class="chip" onclick="setEmoji('${e}')">${e}</div>`).join('')}</div>
+    <button class="btn soft sm" onclick="pickImage()">Загрузить своё изображение</button>
+    <label>Категория</label><select id="lc">${CATS.map(c=>`<option>${c}</option>`).join('')}</select>
+    <label>Название</label><input id="lt" maxlength="80" placeholder="Например: Plush Pepe">
+    <div class="row"><div style="flex:1"><label>Номер (необязательно)</label><input id="ln" inputmode="numeric" placeholder="16418"></div>
+    <div style="flex:1"><label>Цена, TON</label><input id="lp" inputmode="decimal" placeholder="1.5"></div></div>
+    <label>Описание</label><textarea id="ld" maxlength="600" placeholder="Что именно продаёте и как передадите"></textarea>
+    <div class="warn">Выставляйте только то, что у вас реально есть: после оплаты вам нужно передать товар покупателю.</div>
+    <button class="btn" onclick="saveListing()">Опубликовать</button>`);
+}
+function setBg(k){ S.draft.bg=k; $('#pv').style.background=BG[k]; document.querySelectorAll('#sw i').forEach(i=>i.classList.toggle('on',i.dataset.k===k)); }
+function setEmoji(e){ S.draft.emoji=e; S.draft.image=null; $('#pvArt').outerHTML=`<div class="emo" id="pvArt">${e}</div>`; }
+function pickImage(){
+  const i = document.createElement('input'); i.type='file'; i.accept='image/*';
+  i.onchange = () => {
+    const f = i.files[0]; if(!f) return;
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, 320/Math.max(img.width,img.height));
+      const c = document.createElement('canvas'); c.width=Math.round(img.width*s); c.height=Math.round(img.height*s);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      let d = c.toDataURL('image/webp',.82); if(d.length>240000) d = c.toDataURL('image/jpeg',.7);
+      if(d.length>240000) return toast('Изображение слишком большое');
+      S.draft.image = d; $('#pvArt').outerHTML=`<img id="pvArt" src="${d}" alt="">`;
     };
+    img.src = URL.createObjectURL(f);
+  };
+  i.click();
+}
+const saveListing = () => act(async()=>{
+  await api('/listings','POST',{category:$('#lc').value,title:$('#lt').value,descr:$('#ld').value,price:$('#lp').value.replace(',','.'),
+    num:$('#ln').value,bg:S.draft.bg,emoji:S.draft.emoji,image:S.draft.image});
+  closeSheet(); toast('Лот опубликован'); S.tab='market'; render();
+});
 
-    const Header = () => (
-        <div className="header">
-            <div className="logo-area">
-                <div className="logo-icon">G</div>
-                <div className="logo-text">GGSELL Маркет</div>
-            </div>
-            <div className="lang-btn">RU ▼</div>
-        </div>
-    );
+/* ───── Сделки ───── */
+async function renderDeals(){
+  $('#main').innerHTML = `
+    <div class="row" style="margin-bottom:12px">
+      <button class="btn" onclick="newDeal()">Создать сделку</button>
+      <button class="btn soft" onclick="joinByCode()">Присоединиться</button>
+    </div><div id="dl" class="stack"></div>`;
+  const ds = await act(()=>api('/deals')); if(!ds) return;
+  $('#dl').innerHTML = ds.length ? ds.map(d=>{ const s=STATUS[d.status]; return `
+    <div class="card item" onclick="openDeal('${d.code}')">
+      <div class="row sp"><span class="tag ${s[1]}">${s[0]}</span><span class="price">${ton(d.price)}</span></div>
+      <div class="t">${esc(d.title)}</div>
+      <div class="muted">${d.role==='seller'?'Вы продаёте':'Вы покупаете'} · код ${esc(d.code)}</div>
+    </div>`}).join('') : '<div class="empty">Сделок пока нет.<br>Создайте свою или вступите по коду.</div>';
+}
+function newDeal(){
+  openSheet(`<h2>Новая сделка</h2>
+    <p class="muted" style="margin-top:-4px">Вы продавец. Отправьте ссылку покупателю: он нажмёт «Присоединиться», и деньги заморозятся.</p>
+    <label>Что продаёте</label><input id="dt" maxlength="80" placeholder="NFT, подарок, услуга…">
+    <label>Условия</label><textarea id="dd" maxlength="600" placeholder="Описание и порядок передачи"></textarea>
+    <label>Цена, TON</label><input id="dp" inputmode="decimal" placeholder="5">
+    <div style="height:14px"></div><button class="btn" onclick="saveDeal()">Создать</button>`);
+}
+const saveDeal = () => act(async()=>{
+  const r = await api('/deals','POST',{title:$('#dt').value,descr:$('#dd').value,price:$('#dp').value.replace(',','.')});
+  toast('Сделка создана'); S.tab='deals'; await render(); openDeal(r.code);
+});
+function joinByCode(){
+  openSheet(`<h2>Присоединиться к сделке</h2>
+    <label>Код сделки</label><input id="jc" placeholder="Например: a1B2c3D">
+    <div style="height:14px"></div><button class="btn" onclick="openDeal($('#jc').value.trim())">Найти сделку</button>`);
+}
+async function openDeal(code){
+  if(!code) return;
+  const d = await act(()=>api('/deals/'+encodeURIComponent(code))); if(!d) return;
+  const s = STATUS[d.status], link = `https://t.me/${S.me.bot}?start=deal_${d.code}`;
+  const fee = Math.floor(d.price*d.fee_percent/100);
+  let actions = '';
+  if(d.status==='open' && d.role==='guest') actions = `
+    <p class="muted">Нажав «Присоединиться», вы заморозите ${ton(d.price)} на своём балансе. Продавец получит их только после вашего подтверждения.</p>
+    <button class="btn" onclick="dealAct('${d.code}','join')">Присоединиться за ${ton(d.price)}</button>`;
+  else if(d.status==='open' && d.role==='seller') actions = `
+    <div class="copy" onclick="copy('${link}')">${link}</div>
+    <div style="height:10px"></div>
+    <button class="btn soft" onclick="copy('${link}')">Скопировать ссылку</button>
+    <div style="height:8px"></div>
+    <button class="btn red" onclick="dealAct('${d.code}','cancel')">Отменить сделку</button>`;
+  else if(d.status==='funded' && d.role==='seller') actions = `<button class="btn" onclick="dealAct('${d.code}','deliver')">Я передал товар</button>`;
+  else if(d.status==='funded' && d.role==='buyer') actions = `<p class="muted">Ждём, пока продавец передаст товар.</p>`;
+  else if(d.status==='delivered' && d.role==='buyer') actions = `<button class="btn" onclick="dealAct('${d.code}','confirm')">Получил, всё хорошо</button>`;
+  else if(d.status==='delivered' && d.role==='seller') actions = `<p class="muted">Ждём подтверждения от покупателя.</p>`;
+  if(['funded','delivered'].includes(d.status) && d.role!=='guest') actions += `<div style="height:8px"></div><button class="btn red" onclick="dealAct('${d.code}','dispute')">Открыть спор</button>`;
+  openSheet(`
+    <span class="tag ${s[1]}">${s[0]}</span>
+    <h2 style="margin-top:10px">${esc(d.title)}</h2>
+    <p class="muted" style="white-space:pre-wrap;font-size:14px;margin-top:-4px">${esc(d.descr)}</p>
+    <div class="kv"><span>Сумма</span><b>${ton(d.price)}</b></div>
+    <div class="kv"><span>Продавец</span><b>${esc(d.seller_name)}</b></div>
+    <div class="kv"><span>Покупатель</span><b>${esc(d.buyer_name||'пока нет')}</b></div>
+    ${d.role==='seller'?`<div class="kv"><span>Вы получите (комиссия ${d.fee_percent}%)</span><b>${ton(d.price-fee)}</b></div>`:''}
+    <div class="kv"><span>Код</span><b>${esc(d.code)}</b></div>
+    <div style="height:12px"></div>${actions}`);
+}
+const dealAct = (code, a) => act(async()=>{
+  await api(`/deals/${encodeURIComponent(code)}/${a}`,'POST');
+  tg?.HapticFeedback?.notificationOccurred('success'); closeSheet(); await render();
+  if(a!=='cancel') openDeal(code);
+});
 
-    const BottomNav = ({ active, setActive, showToast }) => (
-        <div className="bottom-nav">
-            <div className={`nav-item ${active === 'games' ? 'active' : ''}`} onClick={() => showToast('Игры в разработке')}>
-                <div className="nav-icon">🎮</div><div>Игры</div>
-            </div>
-            <div className={`nav-item ${active === 'market' ? 'active' : ''}`} onClick={() => setActive('market')}>
-                <div className="nav-icon">🛍️</div><div>Маркет</div>
-            </div>
-            <div className={`nav-item ${active === 'deals' ? 'active' : ''}`} onClick={() => setActive('deals')}>
-                <div className="nav-icon">📦</div><div>Мои подарки</div>
-            </div>
-            <div className={`nav-item ${active === 'events' ? 'active' : ''}`} onClick={() => showToast('Акций пока нет')}>
-                <div className="nav-icon">✨</div><div>Ивент</div>
-            </div>
-            <div className={`nav-item ${active === 'profile' ? 'active' : ''}`} onClick={() => setActive('profile')}>
-                <div className="nav-icon">👤</div><div>Профиль</div>
-            </div>
-        </div>
-    );
+/* ───── Кошелёк ───── */
+async function renderWallet(){
+  const m = S.me;
+  $('#main').innerHTML = `
+    <div class="card bal">
+      <div class="muted">Доступный баланс</div>
+      <div class="big">${ton(m.balance)}</div>
+      <div class="muted">В сделках заморожено: ${ton(m.frozen)}</div>
+    </div>
+    <div class="row" style="margin:12px 0">
+      <button class="btn" onclick="deposit()">Пополнить</button>
+      <button class="btn soft" onclick="withdraw()">Вывести</button>
+    </div>
+    <h2>История</h2><div id="hist" class="stack"></div>`;
+  const h = await act(()=>api('/history')); if(!h) return;
+  const WS = {pending:'в обработке',paid:'выплачено',rejected:'отклонено'};
+  const title = x => x.t==='deposit' ? 'Пополнение · '+(x.kind==='stars'?'⭐ Stars':x.kind==='ton'?'TON':'вручную')
+    : x.t==='withdraw' ? 'Вывод · '+WS[x.status] : 'Корректировка · '+esc(x.kind);
+  $('#hist').innerHTML = h.length ? h.map(x=>{
+    const plus = x.t==='deposit' || (x.t==='adjust' && x.amount>0);
+    return `<div class="card row sp">
+      <div><div style="font-weight:600">${title(x)}</div><div class="muted">${date(x.created)}</div></div>
+      <div class="price" style="color:${plus?'var(--g-dark)':'var(--text)'}">${plus?'+':'−'}${ton(Math.abs(x.amount))}</div>
+    </div>`}).join('') : '<div class="empty">Операций пока нет</div>';
+}
+function deposit(mode='ton'){
+  const m = S.me, deepl = `ton://transfer/${m.wallet}?text=${m.comment}`;
+  openSheet(`<h2>Пополнение</h2>
+    <div class="seg"><button class="${mode==='ton'?'on':''}" onclick="deposit('ton')">💎 TON</button><button class="${mode==='stars'?'on':''}" onclick="deposit('stars')">⭐ Stars</button></div>
+    ${mode==='ton' ? `
+      <label>Адрес кошелька</label><div class="copy" onclick="copy('${m.wallet}')">${m.wallet}</div>
+      <label>Комментарий (обязательно!)</label><div class="copy" onclick="copy('${m.comment}')"><b>${m.comment}</b></div>
+      <p class="muted">Переведите TON с этим комментарием. Баланс пополнится автоматически, обычно за 1–2 минуты, ровно на присланную сумму. Минимум ${ton(m.min_deposit)}. Без комментария зачисление невозможно.</p>
+      <a href="${deepl}" style="text-decoration:none"><button class="btn">Открыть в кошельке</button></a>`
+    : `
+      <label>Количество звёзд</label><input id="st" inputmode="numeric" placeholder="100" oninput="starCalc()">
+      <p class="muted" id="sc">Курс: 1 ⭐ = ${m.star_rate} TON</p>
+      <button class="btn" onclick="payStars()">Оплатить звёздами</button>`}`);
+}
+function starCalc(){ const v=parseInt($('#st').value)||0; $('#sc').textContent = v ? `Вы получите ≈ ${(v*S.me.star_rate).toFixed(3)} TON` : `Курс: 1 ⭐ = ${S.me.star_rate} TON`; }
+const payStars = () => act(async()=>{
+  const r = await api('/stars/invoice','POST',{stars:parseInt($('#st').value)});
+  tg.openInvoice(r.link, st => { if(st==='paid'){ closeSheet(); toast('Оплачено, баланс обновится'); setTimeout(render,1500); } });
+});
+function withdraw(){
+  openSheet(`<h2>Вывод средств</h2>
+    <p class="muted" style="margin-top:-4px">Доступно: ${ton(S.me.balance)}. Минимум ${ton(S.me.min_withdraw)}. Заявки обрабатываются вручную.</p>
+    <label>Сумма, TON</label><input id="wa" inputmode="decimal" placeholder="1">
+    <label>Адрес вашего TON-кошелька</label><input id="wd" placeholder="UQ…">
+    <div style="height:14px"></div><button class="btn" onclick="sendWithdraw()">Отправить заявку</button>`);
+}
+const sendWithdraw = () => act(async()=>{
+  await api('/withdraw','POST',{amount:$('#wa').value.replace(',','.'),address:$('#wd').value});
+  closeSheet(); toast('Заявка отправлена'); render();
+});
 
-    const MarketPage = () => (
-        <div>
-            <div className="card">
-                <div className="card-title">GGSELL MARKET</div>
-                <h2 style={{margin: '0 0 5px 0', fontSize: '20px'}}>Подарки Telegram</h2>
-                <p style={{fontSize: '12px', color: 'var(--gg-text-muted)'}}>Подарки с оплатой в GRAM</p>
-                
-                <div className="stats-row">
-                    <div className="stat-box">
-                        <div className="stat-label">В продаже</div>
-                        <div className="stat-value">1160</div>
-                    </div>
-                    <div className="stat-box">
-                        <div className="stat-label">Мин. цена</div>
-                        <div className="stat-value">2.48 GRAM</div>
-                    </div>
-                    <div className="stat-box">
-                        <div className="stat-label">Оборот</div>
-                        <div className="stat-value">105.8M</div>
-                    </div>
-                </div>
-            </div>
+/* ───── Профиль ───── */
+async function renderProfile(){
+  const p = await act(()=>api('/profile')); if(!p) return;
+  const dark = document.documentElement.dataset.theme==='dark';
+  $('#main').innerHTML = `
+    <div class="card row">
+      <div class="ava">${esc((p.name.replace('@','')[0]||'?').toUpperCase())}</div>
+      <div><div style="font-weight:700;font-size:17px">${esc(p.name)}</div>
+      <div class="muted">ID ${p.id} · с нами с ${new Date(p.created*1000).toLocaleDateString('ru',{day:'numeric',month:'long',year:'numeric'})}</div></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><span class="muted">Потрачено</span><b>${ton(p.spent)}</b></div>
+      <div class="stat"><span class="muted">Заработано</span><b>${ton(p.earned)}</b></div>
+      <div class="stat"><span class="muted">Куплено</span><b>${p.bought}</b></div>
+      <div class="stat"><span class="muted">Продано</span><b>${p.sold}</b></div>
+      <div class="stat"><span class="muted">Активные сделки</span><b>${p.active}</b></div>
+      <div class="stat"><span class="muted">Мои лоты</span><b>${p.listings}</b></div>
+      <div class="stat"><span class="muted">Споры сейчас</span><b>${p.disputed}</b></div>
+      <div class="stat"><span class="muted">Возвраты</span><b>${p.refunded}</b></div>
+      <div class="stat wide"><span class="muted">Всего пополнено</span><b>${ton(p.deposited)}</b></div>
+    </div>
+    <div class="card row sp" onclick="toggleTheme();setTimeout(renderProfile,50)" style="cursor:pointer">
+      <div><div style="font-weight:600">Тёмная тема</div><div class="muted">${dark?'Включена':'Выключена'}</div></div>
+      <div class="switch"></div>
+    </div>
+    ${S.me.admin?`<div style="height:12px"></div><button class="btn" onclick="S.tab='admin';S.adm='ov';render()">Панель владельца</button>`:''}`;
+}
 
-            <div className="search-bar">
-                <span>🔍</span> Поиск подарков
-            </div>
+/* ───── Панель владельца ───── */
+async function renderAdmin(){
+  if(!S.me.admin){ S.tab='profile'; return render(); }
+  const ov = await act(()=>api('/admin/overview')); if(!ov) return;
+  S.ov = ov;
+  const tabs = [['ov','Обзор'],['users','Люди'],['wd','Выводы'+(ov.withdrawals.length?` (${ov.withdrawals.length})`:'')],
+    ['dp','Споры'+(ov.disputes.length?` (${ov.disputes.length})`:'')],['log','Журнал']];
+  $('#main').innerHTML = `
+    <button class="btn ghost sm" onclick="S.tab='profile';render()">← Профиль</button>
+    <h2 style="margin-top:12px">Панель владельца</h2>
+    <div class="chips">${tabs.map(t=>`<div class="chip ${S.adm===t[0]?'on':''}" data-a="${t[0]}">${t[1]}</div>`).join('')}</div>
+    <div id="adm"></div>`;
+  document.querySelectorAll('[data-a]').forEach(c => c.onclick = () => { S.adm=c.dataset.a; renderAdmin(); });
+  const box = $('#adm');
+  if(S.adm==='ov'){
+    const d = ov.deals;
+    box.innerHTML = `
+      <div class="warn">Обязательства перед пользователями: <b>${ton(ov.liabilities)}</b> (балансы + заморозка + выводы в очереди). Остаток на кошельке не должен быть меньше.</div>
+      <div class="stats">
+        <div class="stat"><span class="muted">Пользователей</span><b>${ov.users}</b></div>
+        <div class="stat"><span class="muted">Активных лотов</span><b>${ov.lots}</b></div>
+        <div class="stat"><span class="muted">Балансы</span><b>${ton(ov.balances)}</b></div>
+        <div class="stat"><span class="muted">Заморожено</span><b>${ton(ov.frozen)}</b></div>
+        <div class="stat"><span class="muted">Оборот сделок</span><b>${ton(ov.turnover)}</b></div>
+        <div class="stat"><span class="muted">Комиссия</span><b>${ton(ov.fees)}</b></div>
+        <div class="stat"><span class="muted">Пополнено TON</span><b>${ton(ov.dep_ton)}</b></div>
+        <div class="stat"><span class="muted">Пополнено ⭐ (в TON)</span><b>${ton(ov.dep_stars)}</b></div>
+        <div class="stat"><span class="muted">Выплачено</span><b>${ton(ov.paid_out)}</b></div>
+        <div class="stat"><span class="muted">Корректировки</span><b>${ton(ov.adjusted)}</b></div>
+        <div class="stat wide"><span class="muted">Сделки: завершено / в работе / споры</span>
+          <b>${d.completed||0} / ${(d.open||0)+(d.funded||0)+(d.delivered||0)} / ${d.disputed||0}</b></div>
+      </div>`;
+  } else if(S.adm==='users'){
+    box.innerHTML = `<input id="uq" placeholder="ID, @username или имя" oninput="clearTimeout(window._ut);window._ut=setTimeout(loadUsers,250)"><div id="ul" class="stack" style="margin-top:10px"></div>`;
+    loadUsers();
+  } else if(S.adm==='wd'){
+    box.innerHTML = ov.withdrawals.length ? `<div class="stack">${ov.withdrawals.map(w=>`
+      <div class="card">
+        <div class="row sp"><b>#${w.id} · ${esc(w.name)}</b><span class="price">${ton(w.amount)}</span></div>
+        <div class="copy" style="margin:8px 0" onclick="copy('${esc(w.address)}')">${esc(w.address)}</div>
+        <div class="row"><button class="btn sm" onclick="admWd(${w.id},'ok')">Выплачено</button>
+        <button class="btn red sm" onclick="admWd(${w.id},'no')">Отклонить</button></div>
+      </div>`).join('')}</div>` : '<div class="empty">Заявок на вывод нет</div>';
+  } else if(S.adm==='dp'){
+    box.innerHTML = ov.disputes.length ? `<div class="stack">${ov.disputes.map(d=>`
+      <div class="card">
+        <div class="row sp"><b>${esc(d.title)}</b><span class="price">${ton(d.price)}</span></div>
+        <div class="muted" style="margin:4px 0 8px">Продавец ${esc(d.seller_name)} · покупатель ${esc(d.buyer_name)} · код ${esc(d.code)}</div>
+        <div class="row"><button class="btn soft sm" onclick="admDp('${d.code}','b')">Вернуть покупателю</button>
+        <button class="btn sm" onclick="admDp('${d.code}','s')">Отдать продавцу</button></div>
+      </div>`).join('')}</div>` : '<div class="empty">Открытых споров нет</div>';
+  } else {
+    const log = await act(()=>api('/admin/audit')); if(!log) return;
+    box.innerHTML = log.length ? `<div class="stack">${log.map(x=>`
+      <div class="card"><div class="row sp"><b>${esc(x.name)} (${x.user_id})</b>
+        <span class="price" style="color:${x.delta>0?'var(--g-dark)':'var(--red)'}">${x.delta>0?'+':'−'}${ton(Math.abs(x.delta))}</span></div>
+        <div class="muted" style="margin-top:4px">${esc(x.note)} · ${date(x.created)}</div></div>`).join('')}</div>`
+      : '<div class="empty">Корректировок ещё не было</div>';
+  }
+}
+async function loadUsers(){
+  const q = $('#uq')?.value || '';
+  const us = await act(()=>api('/admin/users?q='+encodeURIComponent(q))); if(!us) return;
+  S.users = us;
+  $('#ul').innerHTML = us.length ? us.map(u=>`
+    <div class="card item" onclick="adjustUser(${u.id})">
+      <div class="row sp"><b>${esc(u.name)}</b><span class="price">${ton(u.balance)}</span></div>
+      <div class="muted">ID ${u.id} · сделок ${u.deals} · потрачено ${ton(u.spent)} · заморожено ${ton(u.frozen)}</div>
+    </div>`).join('') : '<div class="empty">Никого не найдено</div>';
+}
+function adjustUser(id){
+  const u = S.users.find(x=>x.id===id); if(!u) return;
+  openSheet(`<h2>${esc(u.name)}</h2>
+    <div class="kv"><span>ID</span><b>${u.id}</b></div>
+    <div class="kv"><span>Баланс</span><b>${ton(u.balance)}</b></div>
+    <div class="kv"><span>Заморожено</span><b>${ton(u.frozen)}</b></div>
+    <div class="kv"><span>Завершённых сделок</span><b>${u.deals}</b></div>
+    <div class="kv"><span>Потрачено</span><b>${ton(u.spent)}</b></div>
+    <label>Изменить баланс, TON (минус, чтобы списать)</label><input id="aa" inputmode="decimal" placeholder="например 2.5 или -1">
+    <label>Причина (попадёт в журнал и пользователю)</label><input id="an" maxlength="200" placeholder="Например: пополнение без комментария, tx …">
+    <div style="height:14px"></div><button class="btn" onclick="applyAdjust(${u.id})">Применить</button>`);
+}
+const applyAdjust = id => act(async()=>{
+  await api('/admin/adjust','POST',{user_id:id,amount:$('#aa').value.replace(',','.'),note:$('#an').value});
+  closeSheet(); toast('Баланс изменён, запись в журнале'); S.adm='users'; renderAdmin();
+});
+const admWd = (id,a) => act(async()=>{ await api(`/admin/withdrawals/${id}/${a}`,'POST'); toast(a==='ok'?'Отмечено выплаченным':'Отклонено, средства возвращены'); renderAdmin(); });
+const admDp = (code,s) => act(async()=>{ await api(`/admin/disputes/${encodeURIComponent(code)}/${s}`,'POST'); toast('Спор решён'); renderAdmin(); });
 
-            <div className="market-grid">
-                {MOCK_NFTS.map(nft => (
-                    <div className="nft-card" key={nft.id}>
-                        <div className="nft-img-container">
-                            <img src={nft.img} alt={nft.name} className="nft-img" />
-                        </div>
-                        <div className="nft-info">
-                            <div className="nft-name">{nft.name} {nft.num}</div>
-                            <div className="nft-sub">#{Math.random().toString().slice(2, 10)}...</div>
-                            
-                            <div className="nft-tags">
-                                {nft.tags.map(t => <div className="nft-tag" key={t}>🏷️ {t}</div>)}
-                            </div>
-
-                            <div className="nft-price">
-                                💎 {nft.price} GRAM
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-
-    const DealsPage = ({ activeDeal, setActiveDeal, balance, setBalance, showToast, setActiveTab }) => {
-        if (!activeDeal) {
-            return (
-                <div>
-                    <div className="card">
-                        <div className="card-title">GGSELL MARKET</div>
-                        <h2 style={{margin: '5px 0 10px 0', fontSize: '20px'}}>Сделка под защитой</h2>
-                        <p style={{fontSize: '13px', color: 'var(--gg-text-muted)', lineHeight: '1.4'}}>
-                            Создайте сделку или войдите по приглашению. Оплата в GRAM удерживается до завершения сделки.
-                        </p>
-                    </div>
-
-                    <div className="card">
-                        <div style={{display: 'flex', gap: '10px', marginBottom: '20px'}}>
-                            <button className="btn" style={{margin: 0}} onClick={() => setActiveTab('create_deal')}>+ Создать</button>
-                            <button className="btn-outline" style={{margin: 0}} onClick={() => setActiveTab('join_deal')}>Войти</button>
-                        </div>
-
-                        <div style={{marginTop: '10px'}}>
-                            <h3 style={{fontSize: '16px', marginBottom: '15px'}}>Как это работает</h3>
-                            
-                            <div style={{display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '15px'}}>
-                                <div style={{background: 'var(--gg-accent)', color: '#000', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', flexShrink: 0}}>1</div>
-                                <div>
-                                    <div style={{fontWeight: 'bold', fontSize: '14px'}}>Создайте сделку</div>
-                                    <div style={{fontSize: '12px', color: 'var(--gg-text-muted)', marginTop: '4px'}}>Выберите, продаёте вы или покупаете актив.</div>
-                                </div>
-                            </div>
-
-                            <div style={{display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '15px'}}>
-                                <div style={{background: 'var(--gg-accent)', color: '#000', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', flexShrink: 0}}>2</div>
-                                <div>
-                                    <div style={{fontWeight: 'bold', fontSize: '14px'}}>Пригласите участника</div>
-                                    <div style={{fontSize: '12px', color: 'var(--gg-text-muted)', marginTop: '4px'}}>Отправьте ссылку или карточку сделки.</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        }
-
-        return (
-            <div>
-                <div className="card" style={{paddingBottom: '10px'}}>
-                    <h2 style={{margin: '0 0 10px 0', fontSize: '20px'}}>Активная сделка</h2>
-                    
-                    <div className="deal-card">
-                        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '10px'}}>
-                            <div>
-                                <div style={{fontWeight: 'bold', fontSize: '16px'}}>{activeDeal.item}</div>
-                                <div style={{fontSize: '12px', color: 'var(--gg-text-muted)', marginTop: '4px'}}>#{activeDeal.id} • {activeDeal.role === 'seller' ? 'Вы продавец' : 'Вы покупатель'}</div>
-                            </div>
-                            <div style={{color: 'var(--gg-gold)', fontWeight: 'bold', fontSize: '16px'}}>{activeDeal.price} GRAM</div>
-                        </div>
-                        
-                        <div className="deal-action">
-                            <div style={{color: 'var(--gg-gold)', fontSize: '10px', fontWeight: 'bold', marginBottom: '5px'}}>СЕЙЧАС</div>
-                            <div style={{fontWeight: 'bold'}}>Ваш шаг: {activeDeal.role === 'buyer' ? 'оплатите сделку' : 'ожидайте оплаты'}.</div>
-                        </div>
-
-                        <p style={{fontSize: '12px', color: 'var(--gg-text-muted)'}}>Средства хранятся до подтверждения получения актива.</p>
-                        
-                        {activeDeal.role === 'buyer' && (
-                            <button className="btn" onClick={() => {
-                                if(balance >= parseFloat(activeDeal.price)) {
-                                    setBalance(b => b - parseFloat(activeDeal.price));
-                                    setActiveDeal({...activeDeal, status: 'paid'});
-                                    showToast('Сделка оплачена!');
-                                } else {
-                                    showToast('Недостаточно средств');
-                                }
-                            }}>💳 Оплатить сделку</button>
-                        )}
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    const CreateDealPage = ({ onBack, onCreate }) => {
-        const [role, setRole] = useState('seller');
-        const [item, setItem] = useState('');
-        const [price, setPrice] = useState('');
-
-        return (
-            <div className="card">
-                <h2 style={{margin: '0 0 15px 0'}}>Создать сделку</h2>
-                <p style={{fontSize: '13px', color: 'var(--gg-text-muted)', marginBottom: '15px'}}>Выберите вашу роль.</p>
-
-                <div className="role-switch">
-                    <div className={`role-btn ${role === 'seller' ? 'active' : ''}`} onClick={() => setRole('seller')}>🟢 Я продавец</div>
-                    <div className={`role-btn ${role === 'buyer' ? 'active' : ''}`} onClick={() => setRole('buyer')}>🔵 Я покупатель</div>
-                </div>
-
-                <div style={{marginBottom: '15px'}}>
-                    <input className="input-field" placeholder="Что продаём?" value={item} onChange={e => setItem(e.target.value)} />
-                </div>
-
-                <div style={{display: 'flex', gap: '10px', marginBottom: '15px'}}>
-                    <div style={{width: '80px', background: 'var(--gg-bg)', border: '1px solid var(--gg-border)', padding: '14px', borderRadius: '10px', color: 'var(--gg-gold)', fontWeight: 'bold', textAlign: 'center'}}>GRAM</div>
-                    <div style={{flex: 1}}>
-                        <input className="input-field" placeholder="Цена" type="number" value={price} onChange={e => setPrice(e.target.value)} />
-                    </div>
-                </div>
-
-                <button className="btn" onClick={() => onCreate(item, price, role)}>Создать сделку</button>
-                <button className="btn-outline" onClick={onBack} style={{marginTop: '10px'}}>Отмена</button>
-            </div>
-        );
-    };
-
-    const JoinDealPage = ({ onBack, onJoin }) => {
-        const [code, setCode] = useState('');
-        return (
-            <div className="card">
-                <h2 style={{margin: '0 0 15px 0'}}>Войти в сделку</h2>
-                <p style={{fontSize: '13px', color: 'var(--gg-text-muted)', marginBottom: '15px'}}>Вставьте код от участника.</p>
-                
-                <input className="input-field" placeholder="Код сделки" value={code} onChange={e => setCode(e.target.value)} style={{marginBottom: '15px'}} />
-                
-                <button className="btn" onClick={() => onJoin(code)}>Войти</button>
-                <button className="btn-outline" onClick={onBack} style={{marginTop: '10px'}}>Назад</button>
-            </div>
-        );
-    };
-
-    const ProfilePage = ({ user, balance, onDeposit }) => {
-        const [depositAmount, setDepositAmount] = useState('1');
-
-        return (
-            <div>
-                <div className="card">
-                    <div className="card-title">АККАУНТ GGSELL</div>
-                    <h2 style={{margin: '5px 0 15px 0', fontSize: '20px'}}>Профиль</h2>
-                    
-                    <div style={{display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px'}}>
-                        <div style={{width: '60px', height: '60px', borderRadius: '50%', background: 'var(--gg-accent)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '28px', color: '#000', fontWeight: 'bold'}}>
-                            {user?.first_name?.charAt(0) || 'U'}
-                        </div>
-                        <div>
-                            <div style={{fontWeight: 'bold', fontSize: '18px'}}>@{user?.username || 'user'}</div>
-                            <div style={{fontSize: '11px', color: 'var(--gg-text-muted)', marginTop: '2px'}}>ID {user?.id}</div>
-                        </div>
-                    </div>
-
-                    <div style={{display: 'flex', gap: '10px'}}>
-                        <div style={{flex: 1, background: 'var(--gg-bg)', padding: '15px', borderRadius: '10px'}}>
-                            <div style={{fontSize: '10px', color: 'var(--gg-text-muted)', marginBottom: '5px'}}>БАЛАНС</div>
-                            <div style={{fontWeight: 'bold', fontSize: '18px', color: 'var(--gg-accent)'}}>{balance} GRAM</div>
-                        </div>
-                        <div style={{flex: 1, background: 'var(--gg-bg)', padding: '15px', borderRadius: '10px'}}>
-                            <div style={{fontSize: '10px', color: 'var(--gg-text-muted)', marginBottom: '5px'}}>ПОТРАЧЕНО</div>
-                            <div style={{fontWeight: 'bold', fontSize: '18px'}}>0 GRAM</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="card">
-                    <div style={{fontWeight: 'bold', marginBottom: '15px'}}>Пополнить баланс</div>
-                    <div style={{display: 'flex', gap: '10px'}}>
-                        <input className="input-field" type="number" value={depositAmount} onChange={e => setDepositAmount(e.target.value)} style={{flex: 1}} />
-                        <button className="btn" style={{width: 'auto', margin: 0, padding: '0 20px', background: 'var(--gg-gold)', color: '#000'}} onClick={() => onDeposit(depositAmount)}>💰 Пополнить</button>
-                    </div>
-                </div>
-
-                <div className="card">
-                    <div style={{fontWeight: 'bold', marginBottom: '15px'}}>Вывести средства</div>
-                    <input className="input-field" placeholder="Адрес GRAM кошелька" style={{marginBottom: '10px'}} />
-                    <div style={{display: 'flex', gap: '10px'}}>
-                        <input className="input-field" placeholder="100" type="number" style={{flex: 1}} />
-                        <button className="btn" style={{width: 'auto', margin: 0, padding: '0 20px'}} onClick={() => alert('Вывод недоступен')}>⬆️ Вывести</button>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    function App() {
-        const [activeTab, setActiveTab] = useState('market');
-        const [user, setUser] = useState(null);
-        const [balance, setBalance] = useState(0);
-        const [toast, setToast] = useState('');
-        const [activeDeal, setActiveDeal] = useState(null);
-
-        useEffect(() => {
-            if (window.Telegram?.WebApp) {
-                window.Telegram.WebApp.ready();
-                window.Telegram.WebApp.expand();
-                const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
-                if (tgUser) setUser(tgUser);
-            } else {
-                setUser({ id: 889451175, username: 'eggod', first_name: 'Egor' });
-            }
-        }, []);
-
-        const showToast = useCallback((msg) => {
-            setToast(msg);
-            setTimeout(() => setToast(''), 2500);
-        }, []);
-
-        const handleDeposit = (amount) => {
-            const val = parseFloat(amount);
-            if(val > 0) {
-                setBalance(prev => prev + val);
-                showToast(`Баланс пополнен на ${val} GRAM`);
-            }
-        };
-
-        const handleCreateDeal = (item, price, role) => {
-            if (!item || !price) {
-                showToast('Заполните все поля');
-                return;
-            }
-            setActiveDeal({
-                id: Math.floor(10000 + Math.random() * 90000),
-                item: item,
-                price: price,
-                role: role,
-                status: 'waiting_payment'
-            });
-            setActiveTab('deals');
-            showToast('Сделка создана!');
-        };
-
-        const handleJoinDeal = (code) => {
-            if(!code) {
-                showToast('Введите код');
-                return;
-            }
-            setActiveDeal({
-                id: Math.floor(10000 + Math.random() * 90000),
-                item: "Sakura Flower",
-                price: "25.5",
-                role: "buyer",
-                status: 'waiting_payment'
-            });
-            setActiveTab('deals');
-            showToast('Вы вошли в сделку!');
-        };
-
-        return (
-            <div>
-                <Header />
-                
-                {activeTab === 'market' && <MarketPage />}
-                {activeTab === 'deals' && <DealsPage activeDeal={activeDeal} setActiveDeal={setActiveDeal} balance={balance} setBalance={setBalance} showToast={showToast} setActiveTab={setActiveTab} />}
-                {activeTab === 'create_deal' && <CreateDealPage onBack={() => setActiveTab('deals')} onCreate={handleCreateDeal} />}
-                {activeTab === 'join_deal' && <JoinDealPage onBack={() => setActiveTab('deals')} onJoin={handleJoinDeal} />}
-                {activeTab === 'profile' && <ProfilePage user={user} balance={balance} onDeposit={handleDeposit} />}
-                
-                <Toast message={toast} />
-                <BottomNav active={activeTab} setActive={setActiveTab} showToast={showToast} />
-            </div>
-        );
-    }
-
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
+/* ───── Старт ───── */
+(async function(){
+  if(!tg?.initData){ $('#main').innerHTML='<div class="empty">Откройте приложение через Telegram-бота</div>'; return; }
+  await render();
+  const p = new URLSearchParams(location.search).get('deal') || (tg.initDataUnsafe?.start_param||'').replace(/^deal_/,'');
+  if(p){ S.tab='deals'; await render(); openDeal(p); }
+})();
 </script>
 </body>
 </html>
